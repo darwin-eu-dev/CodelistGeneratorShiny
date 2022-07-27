@@ -18,3 +18,14 @@ library(CodelistGenerator)
 
 # data ----
 db <- dbConnect(RSQLite::SQLite(), here::here("data", "db.sqlite"))
+vocabSchema<-"main"
+
+condition_vocabs<-dplyr::tbl(db, dplyr::sql(glue::glue(
+      "SELECT * FROM {vocabSchema}.concept"
+    ))) %>% 
+  filter(domain_id=="Condition") %>% 
+  select(vocabulary_id) %>% 
+  distinct() %>% 
+  collect() %>% 
+  pull()
+

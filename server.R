@@ -16,27 +16,30 @@ server <-	function(input, output, session) {
    
 
  
-    if(!is.null(input$source.codes)){
-     working.source.codes<- input$source.codes
+    if(!is.null(input$non_standard.codes)){
+     working.non_standard.codes<- input$non_standard.codes
    } else {
-     working.source.codes<-NULL
+     working.non_standard.codes<-NULL
    }
    
   
-get_candidate_codes(
+getCandidateCodes(
   keywords=c(working.Keywords),
+  conceptClassId = NULL, 
+  standardConcept = "Standard",
   domains = "Condition", #input$domains,
-  search_synonyms = input$search.synonyms,
-  fuzzy_match = input$fuzzy.match,
-  max_distance_cost = input$fuzzy.match.max.distance,
+  searchSynonyms = input$search.synonyms,
+  searchNonStandard = FALSE,
+  fuzzyMatch = input$fuzzy.match,
+  maxDistanceCost = input$fuzzy.match.max.distance,
   exclude = working.exclude, 
-  include_descendants = input$include.descendants,
-  include_ancestor = input$include.ancestor,
+  includeDescendants = input$include.descendants,
+  includeAncestor = input$include.ancestor,
+  verbose = TRUE, 
   db=db,
-  vocabulary_database_schema = "main"
+  vocabularyDatabaseSchema = vocabSchema
 )
 
-   
   }) 
   
   
@@ -66,31 +69,31 @@ get_candidate_codes(
 )
   
 # ntext <- eventReactive(input$goButton, {
-#     input$source.codes
+#     input$non_standard.codes
 #   })
   
 
- get.tbl.source<-eventReactive(input$button, {
+ get.tbl.non_standard<-eventReactive(input$button, {
      table<-get.tbl()
 
 
     validate(need(nrow(table)>0,
                 "No candidate codes"))
-    validate(need(input$source.codes!="",
+    validate(need(input$non_standard.codes!="",
                 "No vocabulary selected"))
 
 
-   show_mappings(table ,
-                 source_vocabularies=input$source.codes,
+   showMappings(table ,
+                 nonStandardVocabularies=input$non_standard.codes,
   db=db,
-  vocabulary_database_schema = "main")
+  vocabularyDatabaseSchema = vocabSchema)
 
 
 })
  
-  output$tbl.source<-    renderDataTable({
+  output$tbl.non_standard<-    renderDataTable({
    
-  table<-get.tbl.source()
+  table<-get.tbl.non_standard()
 
   validate(need(ncol(table)>1,
                 "No results for selected inputs"))
@@ -110,7 +113,7 @@ get_candidate_codes(
     paste0("CandidateCodelistMappings", ".csv")
   },
   content = function(file) {
-    write.csv( get.tbl.source()   , file, row.names =FALSE)
+    write.csv( get.tbl.non_standard()   , file, row.names =FALSE)
   }
 )
 
